@@ -4,10 +4,13 @@ class NavCustomPainter extends CustomPainter {
   double loc;
   double s;
   Color color;
+  Shader shader;
+  double shadow;
   TextDirection textDirection;
+  
 
   NavCustomPainter(
-      double startingLoc, int itemsLength, this.color, this.textDirection) {
+      double startingLoc, int itemsLength, this.color, this.shader, this.shadow, this.textDirection) {
     final span = 1.0 / itemsLength;
     s = 0.2;
     double l = startingLoc + (span - s) / 2;
@@ -18,6 +21,7 @@ class NavCustomPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
+      ..shader = shader
       ..style = PaintingStyle.fill;
 
     final path = Path()
@@ -43,6 +47,12 @@ class NavCustomPainter extends CustomPainter {
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
       ..close();
+      if (shadow != null && shadow > 0) {
+       final shadowPaint = Paint()
+         ..color = Color(0x55000000)
+         ..maskFilter = MaskFilter.blur(BlurStyle.outer, shadow);
+         canvas.drawPath(path, shadowPaint);
+      }
     canvas.drawPath(path, paint);
   }
 

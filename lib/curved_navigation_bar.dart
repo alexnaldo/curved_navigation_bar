@@ -6,29 +6,37 @@ import 'src/nav_custom_painter.dart';
 typedef _LetIndexPage = bool Function(int value);
 
 class CurvedNavigationBar extends StatefulWidget {
-  final List<Widget> items;
+  final List<BottomNavigationBarItem> items;
   final int index;
   final Color color;
   final Color buttonBackgroundColor;
   final Color backgroundColor;
+  final Color selectedIconColor;
+  final Color iconColor;
   final ValueChanged<int> onTap;
   final _LetIndexPage letIndexChange;
   final Curve animationCurve;
   final Duration animationDuration;
   final double height;
+  final Shader shader;
+  final double shadow;
 
   CurvedNavigationBar({
     Key key,
-    @required this.items,
+    this.items,
     this.index = 0,
     this.color = Colors.white,
     this.buttonBackgroundColor,
     this.backgroundColor = Colors.blueAccent,
+    this.selectedIconColor,
+    this.iconColor,
     this.onTap,
     _LetIndexPage letIndexChange,
     this.animationCurve = Curves.easeOut,
     this.animationDuration = const Duration(milliseconds: 600),
     this.height = 75.0,
+    this.shader,
+    this.shadow = 0
   })  : letIndexChange = letIndexChange ?? ((_) => true),
         assert(items != null),
         assert(items.length >= 1),
@@ -53,7 +61,7 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
   @override
   void initState() {
     super.initState();
-    _icon = widget.items[widget.index];
+    _icon = widget.items[widget.index].activeIcon;
     _length = widget.items.length;
     _pos = widget.index / _length;
     _startingPos = widget.index / _length;
@@ -64,7 +72,7 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
         final endingPos = _endingIndex / widget.items.length;
         final middle = (endingPos + _startingPos) / 2;
         if ((endingPos - _pos).abs() < (_startingPos - _pos).abs()) {
-          _icon = widget.items[_endingIndex];
+          _icon = widget.items[_endingIndex].activeIcon;
         }
         _buttonHide =
             (1 - ((middle - _pos) / (_startingPos - middle)).abs()).abs();
@@ -95,7 +103,7 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
     Size size = MediaQuery.of(context).size;
     return Container(
       color: widget.backgroundColor,
-      height: widget.height,
+      height: widget.height,      
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.bottomCenter,
@@ -120,7 +128,9 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
                   type: MaterialType.circle,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: _icon,
+                    child: IconTheme(
+                        data: IconThemeData(color: widget.selectedIconColor),
+                        child: _icon),
                   ),
                 ),
               ),
@@ -132,7 +142,7 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
             bottom: 0 - (75.0 - widget.height),
             child: CustomPaint(
               painter: NavCustomPainter(
-                  _pos, _length, widget.color, Directionality.of(context)),
+                  _pos, _length, widget.color, widget.shader, widget.shadow, Directionality.of(context)),
               child: Container(
                 height: 75.0,
               ),
@@ -143,7 +153,7 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
             right: 0,
             bottom: 0 - (75.0 - widget.height),
             child: SizedBox(
-                height: 100.0,
+                height: 85.0,
                 child: Row(
                     children: widget.items.map((item) {
                   return NavButton(
@@ -151,7 +161,10 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
                     position: _pos,
                     length: _length,
                     index: widget.items.indexOf(item),
-                    child: Center(child: item),
+                    child: Center(
+                        child: IconTheme(
+                            data: IconThemeData(color: widget.iconColor),
+                            child: item.icon)),
                   );
                 }).toList())),
           ),
