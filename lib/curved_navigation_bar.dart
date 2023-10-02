@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'src/nav_button.dart';
 import 'src/nav_custom_painter.dart';
 
@@ -9,11 +8,11 @@ class CurvedNavigationBar extends StatefulWidget {
   final List<BottomNavigationBarItem> items;
   final int index;
   final Color color;
-  final Color buttonBackgroundColor;
+  final Color? buttonBackgroundColor;
   final Color backgroundColor;
   final Color selectedIconColor;
   final Color iconColor;
-  final ValueChanged<int> onTap;
+  final ValueChanged<int>? onTap;
   final _LetIndexPage letIndexChange;
   final Curve animationCurve;
   final Duration animationDuration;
@@ -21,24 +20,22 @@ class CurvedNavigationBar extends StatefulWidget {
   final Shader shader;
   final double shadow;
 
-  CurvedNavigationBar({
-    Key key,
-    this.items,
-    this.index = 0,
-    this.color = Colors.white,
-    this.buttonBackgroundColor,
-    this.backgroundColor = Colors.blueAccent,
-    this.selectedIconColor,
-    this.iconColor,
-    this.onTap,
-    _LetIndexPage letIndexChange,
-    this.animationCurve = Curves.easeOut,
-    this.animationDuration = const Duration(milliseconds: 600),
-    this.height = 75.0,
-    this.shader,
-    this.shadow = 0
-  })  : letIndexChange = letIndexChange ?? ((_) => true),
-        assert(items != null),
+  CurvedNavigationBar(Key? key,
+      {required this.items,
+      this.index = 0,
+      this.color = Colors.white,
+      this.buttonBackgroundColor,
+      this.backgroundColor = Colors.blueAccent,
+      required this.selectedIconColor,
+      required this.iconColor,
+      this.onTap,
+      _LetIndexPage? letIndexChange,
+      this.animationCurve = Curves.easeOut,
+      this.animationDuration = const Duration(milliseconds: 600),
+      this.height = 75.0,
+      required this.shader,
+      this.shadow = 0})
+      : letIndexChange = letIndexChange ?? ((_) => true),
         assert(items.length >= 1),
         assert(0 <= index && index < items.length),
         assert(0 <= height && height <= 75.0),
@@ -50,13 +47,13 @@ class CurvedNavigationBar extends StatefulWidget {
 
 class CurvedNavigationBarState extends State<CurvedNavigationBar>
     with SingleTickerProviderStateMixin {
-  double _startingPos;
+  late double _startingPos;
   int _endingIndex = 0;
-  double _pos;
+  double _pos = 0;
   double _buttonHide = 0;
-  Widget _icon;
-  AnimationController _animationController;
-  int _length;
+  late Widget _icon;
+  late AnimationController _animationController;
+  late int _length;
 
   @override
   void initState() {
@@ -103,7 +100,7 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
     Size size = MediaQuery.of(context).size;
     return Container(
       color: widget.backgroundColor,
-      height: widget.height,      
+      height: widget.height,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.bottomCenter,
@@ -141,8 +138,8 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
             right: 0,
             bottom: 0 - (75.0 - widget.height),
             child: CustomPaint(
-              painter: NavCustomPainter(
-                  _pos, _length, widget.color, widget.shader, widget.shadow, Directionality.of(context)),
+              painter: NavCustomPainter(_pos, _length, widget.color,
+                  widget.shader, widget.shadow, Directionality.of(context)),
               child: Container(
                 height: 75.0,
               ),
@@ -182,7 +179,7 @@ class CurvedNavigationBarState extends State<CurvedNavigationBar>
       return;
     }
     if (widget.onTap != null) {
-      widget.onTap(index);
+      widget.onTap!(index);
     }
     final newPosition = index / _length;
     setState(() {
